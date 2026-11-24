@@ -18,7 +18,7 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'deploy', defaultValue: false, description: 'Toggle this value')
+        booleanParam(name: 'deploy', defaultValue: dev, description: 'Toggle this value')
     }
 
     stages {
