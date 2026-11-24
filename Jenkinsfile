@@ -17,6 +17,10 @@ pipeline {
         acc_id = '150450879000'
     }
 
+    parameters {
+        booleanParam(name: 'deploy', defaultValue: false, description: 'Toggle this value')
+    }
+
     stages {
         stage('Read package.json'){
             steps {
@@ -47,6 +51,22 @@ pipeline {
                             docker push ${acc_id}.dkr.ecr.${region}.amazonaws.com/${project}/${component}:${appVersion}
                         """
                     }
+                }
+            }
+        }
+        stage('trigger deploy'){
+            when{
+                expression { params.deploy }
+            }
+            steps {
+                script {
+                    build job: 'catalogue-cd',
+                    parameters: [
+                        string(name: 'appVersion', value: "${appVersion}"),
+                        string(name: 'deploy_to', value: 'dev')
+                    ],
+                    propagate: false,  // even SG fails VPC will not be effected
+                    wait: false // VPC will not wait for SG pipeline completion
                 }
             }
         }
